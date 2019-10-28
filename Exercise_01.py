@@ -15,7 +15,6 @@ def read_corpus():
 
     return sentences, labels
 
-
 def plot_frequency_nonunique():
     sentences, labels = read_corpus()
     flat_words_nonunique = []
@@ -25,7 +24,6 @@ def plot_frequency_nonunique():
     flat_words_nonunique = np.concatenate(flat_words_nonunique).ravel()
     flat_words = np.unique(flat_words_nonunique)
     plot_top20mostfrequent(flat_words_nonunique)
-
 
 def plot_freq_nostopwordspunctuation():
     tokenizer = RegexpTokenizer(r'\w+')
@@ -41,6 +39,32 @@ def plot_freq_nostopwordspunctuation():
 
 # ctrl+alt+l = indentation, formatting code
 
+# Function removes the k least frequent words
+def remove_k_words_andplot(k):
+    # Should be refactored
+    tokenizer = RegexpTokenizer(r'\w+')
+    sentences, labels = read_corpus()
+    flat_words_nonunique = []
+    for sentence in sentences:
+        # This tokenizer allows for punctiation to remain
+        flat_words_nonunique.append(tokenizer.tokenize(sentence.lower()))
+    flat_words_nonunique = np.concatenate(flat_words_nonunique).ravel()
+    flat_words_noww = [x for x in flat_words_nonunique if
+                       x not in stopwords.words('english')]  # Removing the stopwords from the word list
+
+    flat_words_noww = [x for x in flat_words_nonunique if x not in stopwords.words('english')]
+    freq = nltk.probability.FreqDist(flat_words_noww)
+    list_minus_k = {}
+    for i in freq:
+        if freq[i] > k:
+            list_minus_k[i] = freq[i]
+
+    sorted_x = sorted(list_minus_k.items(), key=lambda kv: kv[1], reverse=True)
+
+    x, y = zip(*sorted_x)
+    plt.plot(x, y)
+
+
 def plot_top20mostfrequent(dict):
     frequency = nltk.probability.FreqDist(dict)  # Returns tuples of word : frequency
     first20pairs = {k: frequency[k] for k in list(frequency)[:20]}  # Returns list of the first 20 pairs
@@ -52,7 +76,7 @@ def plot_top20mostfrequent(dict):
 
 
 def main():
-    plot_freq_nostopwordspunctuation()
+    remove_k_words_andplot(200)
 
 
 
