@@ -3,6 +3,7 @@ import nltk
 import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 from nltk.tokenize import RegexpTokenizer
 
 
@@ -65,6 +66,24 @@ def remove_k_words_andplot(k):
     plt.plot(x, y)
 
 
+# Finds the stemming word for every word in corpus and plots the 20 most frequent ones.
+def plot_mostfrequentstemmed():
+    tokenizer = RegexpTokenizer(r'\w+')
+    sentences, labels = read_corpus()
+    flat_words_nonunique = []
+    for sentence in sentences:
+        # This tokenizer allows for punctiation to remain
+        flat_words_nonunique.append(tokenizer.tokenize(sentence.lower()))
+    flat_words_nonunique = np.concatenate(flat_words_nonunique).ravel()
+    flat_words_noww = [x for x in flat_words_nonunique if x not in stopwords.words('english')]
+    stemmed_words = []
+    stemmer = PorterStemmer()
+    for word in flat_words_noww:
+        stemmed_words.append(stemmer.stem(word))
+
+    stemmed_words = list(stemmed_words)
+    plot_top20mostfrequent(stemmed_words)
+
 def plot_top20mostfrequent(dict):
     frequency = nltk.probability.FreqDist(dict)  # Returns tuples of word : frequency
     first20pairs = {k: frequency[k] for k in list(frequency)[:20]}  # Returns list of the first 20 pairs
@@ -76,7 +95,7 @@ def plot_top20mostfrequent(dict):
 
 
 def main():
-    remove_k_words_andplot(200)
+    plot_mostfrequentstemmed()
 
 
 
