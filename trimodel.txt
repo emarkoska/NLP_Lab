@@ -1,0 +1,130 @@
+Tri-Model Tournament 
+
+Welcome to the inaugural Tri-Model Tournament – A week-long data science hackathon where we embark upon a magical journey of discovery, innovation, and friendly collaboration. Unlike the Triwizard tournament, our challenge isn’t about winning a trophy - or resurrecting a dark lord - but about pushing the boundaries of knowledge and collaboration.
+Participants will be divided into three experiment families, each tasked with developing and refining models that tackle a fundamental problem within RDG – assessing the likelihood of data points that banks report to the BoE are anomalous. These families will engage in a series of spellbinding challenges, from data wrangling to complex predictive modelling, all while sharing insights and fostering a spirit of camaraderie.
+Get ready to witness feats of intellectual prowess, creative problem-solving, and teamwork as we embark on this extraordinary adventure! Let us battle the dragons of incomplete and wild data, dive into the deep, sleepy lakes to retrieve hidden-away probabilities, and navigate the intricate maze of building robust and reliable machine learning!
+May the best models emerge, and may the spirit of collaboration and learning guide us all.
+Welcome to the Tri-Model Tournament, where the magic of data science comes alive! 
+✨ ✨ ✨
+Intro
+The Regulatory Data Group is consisted of four teams: Banking, Insurance, Households and Rates, and Change team. Within the scope of this ML sprint, we’ll be focusing only on aiding the Banking team. The Banking team receives an abundance of data from a variety of banks that report to the BoE, and each quarter, we run a round for plausibility checking, i.e. establishing whether the data points reported to the BoE make sense, or they are likely to be anomalous. It is our job to check the submitted data, and if it seems wrong, to reach out back to the bank itself so that they may resubmit the correct datapoint.
+Quarterly, we receive approximately 400000 data points – too many for human analysts to check manually. We have machine learning models that sort those 400000 data points based on their likelihood to be anomalous. The top 2000 most likely to be anomalous are then reviewed and flagged data points are discussed with supervisors in the PRA following which the firms are contacted where relevant.
+ 
+As a visual example, let’s take the following graph. The last data point seems to generally be different and much lower than the trend before. Is the last data point plausible if the trend of the timeseries seems generally different? Probably not. We would like to train a model that will detect this.
+
+ 
+
+Experiment families
+Unlike the fair-weather datasets with solutions ready for the taking, the models developed for this problem have likely not yet reached their full potential. We have experimented with a variety of features and approaches, however various strands of experiments remain untested. Below are several directions that we intend to explore within this sprint. Each experiment will begin with the same training set and test set and will be evaluated in the same way.
+You are strongly encouraged to do some exploratory data analysis (EDA) first and get a better sense of the data before embarking upon a brainstorm to think about what experiment design you’re interested in.
+Each participant will be grouped within an experiment family. Have a read across all families and find your name within the lists to learn which team you belong in.
+The following guidelines are simply guidelines. They do not contain a full exhaustive list of things that may work, but are simply potential directions that your team can take. Use them as inspiration to fuel your experiment design, but don’t be afraid to be bold and explore alternative ideas. Feel free to talk to your team members, or reach out for more help at any point.
+While the experiment families all have slightly different guidelines, you’re encouraged to read the directions from different families, too. If you find that ideas from another family may enhance the performance of your models, feel free to experiment with ideas across the whole range. For example, if you have 4 models for 4 bank-families that you have constructed, and feel they may benefit from a feature discerning the type of time-series, feel free to add that experiment in.
+Below is a non-exhaustive list of features to spice up your creativity for exploration. You are strongly encouraged to think of new ones and explore your own ideas!
+
+
+Feature	Description
+logAbsDiff	Log of the absolute difference between latest and previous value.
+logAbsPctChang	Log of the absolute percentage change from previous value to latest.
+logAbsLatestValue	Log of the absolute of the latest value
+logAbsPreviousValue	Log of the absolute of the previous value
+logSD	Log of the standard deviation of the timeseries
+logAbsDiffDiff	Log of the absolute difference between the change in series for example if a series had been 2,3,5 with 5 the latest value this feature would equal log(abs((5-3)-(3-2))) = log(abs(1))
+annual	Indicates if series only changes annually
+patternbreach	Flag breaches of pattern, e.g., always same value or always annual but is no longer.
+logDiffRange	Log of the range of the differences between consecutive values.
+logMeanDiff	Log of the mean of the differences between consecutive values.
+logAbsRefValue	Log of the absolute of the datapoint’s reference value
+logAbsValAsPctOfRef	Log of the absolute of the latest value as a percentage of the reference value
+logAbsDiffAsPctOfRef	Log of the absolute, of the difference between latest and previous value as a percentage of the reference value.
+fromToZero	binary indicator denoting movements to and from zero. 1: denotes where non-zero previousValue moves to zero latestValue; or where zero previousValue moves to non-zero latestValue.
+logMAD	The log median absolute deviation of a datapoint’s time series
+logLastMAD	The log of the absolute of the difference between the latest value and the series median
+logAbsLatestFromMean	The log of the absolute of the difference between the latest value and the series mean
+TableFeature	Assigns table as one-hot encoded feature
+TableFeatureQuasiCluster	One-hot encodes F02, most liquidity, and other tables into either ytd, liquidity or other category, was used in a regression project
+stationarity	Checks stationarity for each time series using an Augmented Dickey-Fuller test and assigns a boolean 1,0 value
+slope	Creates a new feature for the slope of the time series. The time series is fit in a linear regression model. Afterwards the slope is assigned for each time series as a separate feature.
+meanstd	Creates 4 new features - mean_yoy, std_yoy, mean_mom, std_mom
+ytd	Creates a feature with a percentage of the time series complying with the rise-rise-rise-fall pattern, to check whether a time series is year-to-date.
+stdMinusLatestFromMean	Difference between the logSD and the LogAbslatestFromMean
+diffMinusMAD	Difference between logAbsDiff and logMAD.
+priority	Binary variable indicating if the cell is in a list of 31 high priority cells to plausi check.
+justify	This function is used by other functions to do full series calculations when NaNs need to be excluded
+lastValid	this function can be used to find the last nonNA value for each row
+
+
+Modelling across time-series types
+In this team: Henri, Owain, Daniel, Monica, Isabel
+The objective within this experiment family is to explore the possible performance improvements that may come from deriving a feature that discerns the type of time-series for any given row. The experiment can involve the construction of a variable for time-series type which will then be used as a feature in a model, or even splitting the training set across different time-series types and developing separate models for each type. These separate models may not necessarily be the same given the different properties of the time-series, however they all in the end must form an ensemble which will forecast for the test set.
+Guidelines:
+	Classify the time-series types:
+•	Develop a method to classify each time-series into types such as stock, flow, or others, based on the characteristics of the data.
+•	Use statistical properties, domain knowledge, or even unsupervised learning techniques (e.g. clustering) to perform this classification.
+	Feature engineering
+•	Create features that capture the unique characteristics of each time-series type to aid in anomaly detection.
+•	For stock data: level features (average, median, SD of the time-series), trend features (slope of the trend, trend strength, moving averages), lag features (values at various lags, autocorrelation coefficients), features studying the relationship between the last data point and the previous one (% difference or similar)
+•	For flow fata: rate of change (differences between consecutive points, % change), seasonality features (seasonal decomposition, Fourier transformations, seasonal lags), cyclical patterns (amplitude of frequency of cycles, if we have enough data)
+	Model development
+•	Develop and test models tailored to each time-series type for predicting the target variable (anomalous or not).
+•	Stock data models: Tree-based models (random forest, gradient boosting), Statistical models (ARIMA, Holt-winters), Neural networks (Simple RNN or LSTM focused on trend detection)
+•	Flow data models: Anomaly detection algorithms (Isolation forest, one-class SVM, autoencoders), Seasonal models (Prophet, TBATS), advanced neural networks (LSTM or GRU)
+
+Modelling across banks/groups of banks
+In this team: Richard, Simran, Callum, Cameron, Ammara, Riyad
+The objective behind this experiment family is to investigate whether specific banks or groups of banks exhibit distinct behaviours that can be leveraged to enhance the prediction of whether the last data point is anomalous. Banks may differ by different variables that may be good predictors for anomalous data points during reporting. While some banks are already pre-grouped based on contractual obligations, within this experiment we only focus on groupings that emerge from the data itself empirically.
+Guidelines:
+	Bank classification
+•	Categorise the rows based on the reporting bank
+•	Use metadata or predefined rules to classify banks into individual entities or groups
+•	Attempt an unsupervised clustering approach to try and cluster banks into groups
+	Feature engineering
+•	Extract and engineer features that capture unique behaviours of individual banks or groups of banks.
+•	Bank specific features (frequency of reports, size of bank), statistical features (mean, median, SD, skewness, kurtosis for each bank’s reported data), behavioural patterns (typical values, trends, anomalies in the historical data)
+•	Group-level features: aggregate statistics (combined statistical metrics across groups of similar banks), behavioural patterns (common patterns and/or anomalies observed in the same group)
+	Model development
+•	Build and test models that leverage the bank-specific and group-level features for predicting the target variable
+•	Bank-specific models: tree-based models (decision tree, random forest, gradient boosting, statistical models (regression models, generalised linear models)
+•	Group models: play around with various ensembles across the bank-specific models
+
+Modelling across templates/groups of templates
+In this team: Milan, Greg, Rhea (shadow Sadiya), Luke
+The objective behind this experiment family is to explore whether patterns within specific templates or groups of templates can enhance the prediction of whether the last data point is labelled anomalous. Certain templates or even families of templates may display different properties which thus far have not been explored, and it’s within this experiment family that we hope to construct features based on these differences and test whether these features may improve model performance.
+Guidelines:
+	Template classification
+•	Group data points based on their reporting templates
+•	Use metadata or predefined rules to classify templates
+•	Experiment with combining templates together if data across them seems similar
+	Feature engineering
+•	Emerging from your EDA, explore various possibilities for extracting and engineering features that capture unique patterns of behaviour within each template or groups of templates.
+•	Template-specific features – template structure (number of data points, data point types, layout), statistical features (mean, median, SD, skewness, kurtosis for each data point type), temporal features (trend, seasonality, cycles within the data points within template)
+•	Group-level features – aggregate statistics (combined statistical measures across groups of similar templates), behavioural patterns (common patterns or anomalies observed across templates in the same group)
+	Model development
+•	Build and test models that leverage template-specific and group-level features for predicting the target variable (anomalous or not).
+•	Template-specific models: tree-based models (decision tree, random forest, gradient boosting, statistical models (regression models, generalised linear models)
+•	Group models: play around with various ensembles across the template-specific models.
+Experiments based on MSc theses in Change
+
+Two members from the Change team will work on their own separate experimentation emerging from their MSc projects. They will not participate in the experiment families, however they will give updates and presentations. 
+	Victoria: Due to the methodology of how analysts review and record their decisions on datapoints there are inconsistencies in the labelling, which extend beyond differences in decisions different analysts make. This occurs when there are several unusual movements across related (parent-child) data points, as only one data point will be ‘raised’ and recorded as so. This was done to reduce the number of queries sent to reporters, as the nature of reporting means that any correction to one data point would correct any related data points. However, it creates an issue within the labelling of the dataset in the database, as there are data points marked as ‘don’t raise’ which should be been marked as ‘raised’ and means that the data cannot be used for training without a large amount of cleaning or manual intervention. Victoria's project aims to address these inconsistencies and improve the labelling, by clustering similar time series and relabelling datapoints which are in the same cluster and have a parent child relationship. This is being achieved through a HDBSCAN clustering algorithm and an adjacency matrix representing the parent-child relationships in COREP data. During this week Victoria will be applying the dimensionality reduction technique UMAP to see if this improves the clustering and start tuning the model to find the best set of parameters for the most effective relabelling.
+	Maxwell: Max will explore whether different cells consistently show different levels of volatility and/or different scaling of volatility with quantity, in hopes of being able to tune our models and/or put guidelines into PlausiPal suggesting how big a movement is expected to be. He will also explore using the geometric mean of the model scores instead of the arithmetic mean, which his prior experiments showed gave better results for 2023 Q4 data. This has not been tested on other quarters of data, so its viability remains to be tested.
+Coding
+You will each be given a Jupyter notebook, in the initial_functions branch of the repo, where you will find the training set and test set. The notebook also contains a standard evaluation which we request that you run for each model you produce. This will ensure comparability across all models produced regardless of the experiment family. At the end of the notebook there is a function that appends experiment results to a csv file that you save locally. Always save your experiment results, however confident or unconfident you are with your experiments. 
+Training set and test set:
+     
+At the end of the sprint, please push your Jupyter notebooks and CSV outputs in the following repo: results-csv - Repos. Title your Jupyter notebooks with your name and staff number, and do the same for your csv file.
+All experiment families contain more senior and more junior colleagues, so feel free to debate and brainstorm at will. Remember that sometimes the best ideas come from most junior colleagues. 😊
+Practical considerations
+We are grateful for the time of each of the external participants. It is entirely your choice to decide in which capacity you’ll be able to engage with our sprint. There is no requirement to attend and do everything, however there is a requirement that you coordinate your constraints within your experiment family so that appropriate experiment allocation is achieved.
+In line with the Bank's policy, all teams are encouraged to work in a hybrid way, however it’s entirely alright to coordinate coming into the office with your teams. 
+For any complications or requests, reach out to Elena Markoska or Mark Wanzala-Ryan.
+Updates and Final presentations
+Each team should give an update on their progress on Wednesday 19th of June. 
+Each team is expected to deliver a final presentation on Friday 21 June. 
+Neither of these are expected to be fully polished presentation, so you’re encouraged to focus more on the story and design, rather than spending too much time making a slide deck. Come with your code and your ideas, and let’s have a discussion.
+Each of the experiment families will be given 30 min for presentation and discussion – each group to decide how you would like to split this time. 
+Victoria and Max will be given 15 mins each for presentation and discussion.
+
+
+
+
